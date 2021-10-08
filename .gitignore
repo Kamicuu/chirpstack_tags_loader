@@ -1,0 +1,4 @@
+src/bootstrap/
+src/shim.min.js
+src/xlsx.full.min.js
+src/angular.min.js
