@@ -10,8 +10,9 @@ serv.service("TagsService", function ($rootScope, $http) {
         total: 0,
     }
     this._errorList = [];
+    this._overrideTags
 
-    this.prepareAndValidateData = (dataJsonXls, jwt, lnsIp) =>{
+    this.prepareAndValidateData = (dataJsonXls, jwt, lnsIp, overrideTags) =>{
 
         this._requestArray = [];
         this._requestsNumbers = {
@@ -20,6 +21,8 @@ serv.service("TagsService", function ($rootScope, $http) {
             total: 0,
         }
         this._errorList = [];
+        this._header = dataJsonXls[0];
+        this._overrideTags = overrideTags;
     
         const hexRegex = new RegExp(/\b[a-f0-9]+\b/i) 
 
@@ -28,7 +31,7 @@ serv.service("TagsService", function ($rootScope, $http) {
         }
 
 
-        if(!dataJsonXls[0][0]==="devEui"){
+        if(this._header[0]!=="devEui"){
             return {type: 'error', msg:'Pierwsze pole formularza musi mieć tytuł "devEui"'}
         }
 
@@ -36,6 +39,7 @@ serv.service("TagsService", function ($rootScope, $http) {
         for (let i = 1; i < dataJsonXls.length; ++i) {
             
             let data = dataJsonXls[i]
+            let tagsObject = {}
 
             data[0] = data[0].slice(2)
 
@@ -45,19 +49,22 @@ serv.service("TagsService", function ($rootScope, $http) {
             }else if(!hexRegex.test(data[0])){  
                 return {type: 'error', msg:'devEui w wierszu: '+(i+1)+ ' posiada niedozwolne znaki (dozwolone są znaki w notacji hex)'}
             }
-                
+
+
 
             try {
+                //Add multiple tags (one tag - one column) j=1 cause devEui first col
+                for(let j = 1; j<this._header.length; j++){
+                    tagsObject[this._header[j]] = data[j].toString()
+                }
+
                 let requestDataObj =   {
                     devEui: data[0].toString(),
                     jwt: jwt,
                     lnsIp: lnsIp,
                     data:{
                         device: {
-                            tags: {
-                                latitude: data[1].toString(),
-                                longitude: data[2].toString()
-                            },
+                            tags: tagsObject
                         }
                     }    
                 }
@@ -88,9 +95,12 @@ serv.service("TagsService", function ($rootScope, $http) {
         })
         .then(response => {
 
-            let tmp = response.data;
-            tmp = {...tmp.device, ...requestData.data.device}
-            tmp = {device:tmp}
+            let tmp = {device: {...response.data.device, ...requestData.data.device}}
+
+            if(!this._overrideTags){
+                tmp.device.tags = {...response.data.device.tags, ...requestData.data.device.tags}
+            }
+            
             
             $http({
                 url: requestData.lnsIp+'/api/devices/'+requestData.devEui,

@@ -9,6 +9,7 @@ tags.controller("TagsCtrl", ($scope, $timeout, TagsService, $q) => {
     vm.dataWasSend = false;
     vm.displayErrorLog = false;
     vm.errorLogs
+    vm.overrideTags = false
 
     let promise = $timeout();
     
@@ -23,7 +24,7 @@ tags.controller("TagsCtrl", ($scope, $timeout, TagsService, $q) => {
             
             //'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhcyIsImV4cCI6MTYzMzczMzEwNywiaWQiOjEsImlzcyI6ImFzIiwibmJmIjoxNjMzNjQ2NzA3LCJzdWIiOiJ1c2VyIiwidXNlcm5hbWUiOiJhZG1pbiJ9.8b3yNzvQ1OQ2LfLfC0ycl6mfnGIA52x77-X13B6fKdA'
             //'http://172.16.1.251:8080'
-            vm.validateInfo = TagsService.prepareAndValidateData(vm.jsonXLSXData.Arkusz1, vm.jwt, vm.ip, $scope.counter)
+            vm.validateInfo = TagsService.prepareAndValidateData(vm.jsonXLSXData.Arkusz1, vm.jwt, vm.ip, vm.overrideTags)
             
             $scope.$parent.$apply()
 
