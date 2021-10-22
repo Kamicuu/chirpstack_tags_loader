@@ -20,6 +20,7 @@ tags.controller("TagsCtrl", ($scope, $timeout, TagsService, $q) => {
     
 
     vm.process = () =>{
+        vm.validateInfo = [];
 
         file = document.getElementById('file_xlsx').files[0];
         readFile(file).then( data=>{
