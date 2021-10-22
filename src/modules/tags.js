@@ -3,13 +3,18 @@ const tags = angular.module("tags", ["tags.service"]);
 tags.controller("TagsCtrl", ($scope, $timeout, TagsService, $q) => {
 
     vm = $scope.form = {};
-    vm.validateInfo = {};
+    vm.validateInfo = [];
+    vm.validationHasError;
     vm.ip = "http://localhost:8080"
     vm.status;
     vm.dataWasSend = false;
     vm.displayErrorLog = false;
     vm.errorLogs
-    vm.overrideTags = false
+    vm.updateProperties = {
+        overrideTags: false,
+        updateTags: false,
+        updateDeviceProfile: false
+    }
 
     let promise = $timeout();
     
@@ -22,14 +27,18 @@ tags.controller("TagsCtrl", ($scope, $timeout, TagsService, $q) => {
             buff = new Uint8Array(data);
             vm.jsonXLSXData = to_json(XLSX.read(buff,{type:'array'}));
             
-            //'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhcyIsImV4cCI6MTYzMzczMzEwNywiaWQiOjEsImlzcyI6ImFzIiwibmJmIjoxNjMzNjQ2NzA3LCJzdWIiOiJ1c2VyIiwidXNlcm5hbWUiOiJhZG1pbiJ9.8b3yNzvQ1OQ2LfLfC0ycl6mfnGIA52x77-X13B6fKdA'
-            //'http://172.16.1.251:8080'
-            vm.validateInfo = TagsService.prepareAndValidateData(vm.jsonXLSXData.Arkusz1, vm.jwt, vm.ip, vm.overrideTags)
+            //vm.jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhcyIsImV4cCI6MTYzNTAxODM0NiwiaWQiOjEsImlzcyI6ImFzIiwibmJmIjoxNjM0OTMxOTQ2LCJzdWIiOiJ1c2VyIiwidXNlcm5hbWUiOiJhZG1pbiJ9.WptQu3XVHi8kSOcr9vz0wyFTqDNWdEjLs7A7xbBfZcQ'
+            //vm.ip='http://172.16.1.251:8080'
+            vm.validateInfo = TagsService.prepareAndValidateData(vm.jsonXLSXData.Arkusz1, vm.jwt, vm.ip, vm.updateProperties)
             
             $scope.$parent.$apply()
 
-            if(vm.validateInfo.type==='error'){
+            if(vm.validateInfo.find(ele => ele.type==='error')){
+                vm.validationHasError = true
+                $scope.$parent.$apply()
                 throw(vm.validateInfo);
+            }else{
+                vm.validationHasError = false
             }
         
         }).then(()=>{
@@ -88,7 +97,8 @@ const readFile = (inputFile) => {
         try{
             fileReader.readAsArrayBuffer(inputFile);
         }catch(error){
-            vm.validateInfo = {type: 'error', msg: "Nie udało się wczytać pliku xlsx"}
+            vm.validationHasError = true
+            vm.validateInfo.push({type: 'error', msg: "Nie udało się wczytać pliku xlsx"})
         }
         
     });

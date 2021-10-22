@@ -30,12 +30,19 @@
                     <div class="form-group">
                         <label>Plik:<br><input type="file" id="file_xlsx" class="form-control" name="file_xlsx" accept=".xlsx"/></label>
                     </div>
+                    <div class="border form-check mt-4">
+                        <label class="form-check-label p-2">Aktualizuj tagi <input class="form-check-input" type="checkbox" ng-model="form.updateProperties.updateTags"  id="update_tags"></label><br>
+                        <label class="form-check-label p-2">Aktualizuj deviceProfile <input class="form-check-input" type="checkbox" ng-model="form.updateProperties.updateDeviceProfile"  id="update_deviecProfile"></label>
+                    </div>
                     <div class="form-check mt-4">
-                        <label class="form-check-label">Wyczyść istniejące tagi<input class="form-check-input" type="checkbox" ng-model="form.overrideTags"  id="override_tags"></label>
+                        <label class="form-check-label" ng-class="{'text-muted' : !form.updateProperties.updateTags}">Wyczyść istniejące tagi<input class="form-check-input" ng-disabled="!form.updateProperties.updateTags" type="checkbox" ng-model="form.updateProperties.overrideTags"  id="override_tags"></label>
                     </div>
                 </form>
-                <div class="ms-3 mt-2" ng-class="{'text-danger': form.validateInfo.type==='error', 'text-success': form.validateInfo.type==='info'}">
-                    Walidacja danych: {{form.validateInfo.msg}}
+                <div class="ms-3 mt-2" ng-class="{'text-danger': form.validationHasError===true, 'text-success': form.validationHasError===false}">
+                    Walidacja danych:<br>
+                    <span ng-repeat="validationInfo in form.validateInfo">
+                        {{$index + 1}}. {{validationInfo.msg}}<br>
+                    </span>
                 </div>
                 <button class="btn btn-primary ms-3 mt-2" ng-click="form.process()">Process</button>
             </div>
@@ -75,7 +82,7 @@
                 </tbody>
               </table>
         </div>
-        <div class="row fixed-bottom bg-light border-top d-flex justify-content-between"><div class="m-2 w-auto">Kamil Sienica</div><div class="m-2 w-auto">ver. 0.2 | 13.10.2021</div></div>
+        <div class="row fixed-bottom bg-light border-top d-flex justify-content-between"><div class="m-2 w-auto">Kamil Sienica</div><div class="m-2 w-auto">ver. 0.3 | 22.10.2021</div></div>
     </div>
 </body>
 
